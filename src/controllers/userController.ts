@@ -5,13 +5,13 @@ import { createUser, findByEmail } from '../services/UserService.js'
 import { IUser, IUserInputPassword } from '../models/userModel.js';
 import { jwtSign } from '../utils/jwt.js';
 import { JwtPayload } from 'jsonwebtoken';
+import { requestPasswordReset,resetPassword } from '../services/authService.js';
 
 export const register = async (req: IRequestExtends, res: IResponseExtends<string>) => {
     try {
         // console.log('register controller running');
         const { email, password, passwordIsValid} :IUserInputPassword = req.body
         
-    
         if(!email || !password) {
             return res.status(StatusCodes.BadRequest400).send({message: 'email and password are required'});
         } else if(password.length < 6) {
@@ -29,7 +29,7 @@ export const register = async (req: IRequestExtends, res: IResponseExtends<strin
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
     
-        await createUser({email, password: hashedPassword});
+        await createUser({email, password: hashedPassword, token: ''});
         
         return res.status(StatusCodes.Created201).send({message: 'Successfully created user'});    
     } catch (error) {
@@ -84,5 +84,19 @@ export const login = async (
         }
     }
 
+    export const requestResetPasswordController = async (req: IRequestExtends, res: IResponseExtends<{ message: string }>) => {
+        const requestPasswordResetService = await requestPasswordReset(
+            req.body.email
+        );
+        return res.json({ message: requestPasswordResetService.link });
+    }
 
+    export const resetPasswordController = async (req: IRequestExtends, res: IResponseExtends<{ success: boolean }>) => {
+        const resetPasswordService = await resetPassword(
+            req.body.userId,
+            req.body.token,
+            req.body.password
+        );
+        return res.json({ success: resetPasswordService });
+    }
 

@@ -13,4 +13,3 @@ export interface IRequestExtends extends Request {
 export interface IResponseExtends<ResBody> extends Response {
     json: Send<ResBody, this>;
 }
-

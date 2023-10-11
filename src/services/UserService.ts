@@ -1,4 +1,5 @@
 import { IUser, IUserDocument, User } from "../models/userModel.js";
+import jwt from 'jsonwebtoken';
 
 export const createUser = async ({
     email,
@@ -9,6 +10,10 @@ export const createUser = async ({
             email,
             password
         });
+
+        //generate token
+        const token = jwt.sign({id: user._id}, process.env.JWT_SECRET as string, {expiresIn: '1d'});
+        user.token = token;
         await user.save();
         return user;
         } catch (error) {
