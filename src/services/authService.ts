@@ -4,7 +4,7 @@ import { sendEmail } from '../utils/sendEmail.js';
 import crypto from 'crypto';
 import { ISendEmailOptions } from '../models/userModel.js';
 
-export const requestPasswordReset = async (email: string): Promise<{ link: string }> => {
+export const requestPasswordReset = async (email: string): Promise<{link: string}> => {
     const user = await User.findOneAndUpdate(
         { email },
         {
@@ -19,13 +19,22 @@ export const requestPasswordReset = async (email: string): Promise<{ link: strin
 
     const link = `${process.env.CLIENT_URL}/passwordReset?token=${user.token}&id=${user._id}`;
 
+    console.log(`token==> ${user.token}`)
+    console.log(`id==> ${user._id}`)
+
     await sendEmail({
             email: user.email,
             subject: "Password Reset Request",
-            payload: { link },
+            payload: { 
+                link:link,
+                token: user.token,
+                id: user._id 
+            },
             template: "./template/requestResetPassword.handlebars"
     }as ISendEmailOptions);
-    return { link };
+    return {
+        link
+    };
 };
 
 export const resetPassword = async (userId: string, token: string, password: string): Promise<boolean> => {
@@ -34,11 +43,11 @@ export const resetPassword = async (userId: string, token: string, password: str
     if (!passwordResetToken) {
         throw new Error("Invalid or expired password reset token");
     }
-
-    console.log(passwordResetToken.token, token)
-
     const isValid = await bcrypt.compare(token, passwordResetToken.token);
 
+    console.log(`token==> ${token}`)
+    console.log(`passwordResetToken.token==> ${passwordResetToken.token}`)
+        
     if (!isValid) {
         throw new Error("Invalid or expired password reset token");
     }
@@ -49,7 +58,7 @@ export const resetPassword = async (userId: string, token: string, password: str
     await User.findOneAndUpdate(
         { _id: passwordResetToken._id },
         { $set: { password: hash } },
-        { new: true, returnDocument: "after" }
+        { new: true}
     );
 
     return true;

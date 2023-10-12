@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs'
 import { IRequestExtends, IResponseExtends } from '../utils/express-extends.js'
 import { StatusCodes } from '../utils/constant.js'
-import { createUser, findByEmail } from '../services/UserService.js'
+import { createUser, findByEmail } from '../services/userService.js'
 import { IUser, IUserInputPassword } from '../models/userModel.js';
 import { jwtSign } from '../utils/jwt.js';
 import { JwtPayload } from 'jsonwebtoken';

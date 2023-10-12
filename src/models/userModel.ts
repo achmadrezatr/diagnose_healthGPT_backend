@@ -22,9 +22,9 @@ export interface ISendEmailOptions extends Document {
 export interface IUserDocument extends IUser, Document {}
 
 const UserSchema = new Schema<IUserDocument>({
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-    token: {type: String, required: false}
+    email: { type: String, required: true, unique: true},
+    password: { type: String, required: true , minlength: 6},
+    token: {type: String, required: false} 
     },
     { timestamps: true }
     );
